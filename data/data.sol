@@ -12,8 +12,6 @@ contract CC {
     mapping(address => uint256) private balance;
     mapping(address => TokenData[]) private userlogs;
     mapping(bytes32 => address) private placeAddressMap;
-    
-    // 방문지 기업이 방문객에서 금액 지불함
 
     // 새로운 사용자 추가
     function addUser() public {
