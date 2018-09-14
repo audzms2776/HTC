@@ -4,7 +4,7 @@
 const Web3 = require('web3');
 const fs = require('fs');
 const solc = require('solc');
-const SOLPATH = 'data.sol';
+const SOLPATH = '../data/hello.sol';
 
 function resolveCompile(solPath) {
     return new Promise(resolve => {
@@ -14,7 +14,7 @@ function resolveCompile(solPath) {
             }
 
             const compiledCode = solc.compile(data.toString());
-            resolve(compiledCode);
+            return resolve(compiledCode);
         });
     })
 }
@@ -27,26 +27,40 @@ function sleep() {
     })
 }
 
+async function etherInit(web3) {
+    const code = await resolveCompile(SOLPATH);
+    const contractCode = code['contracts'][':SimpleStorage'];
+    const abiDefine = JSON.parse(contractCode['interface']);
+    const myContract = web3.eth.contract(abiDefine);
+    const bytecode = contractCode['bytecode'];
+
+    const contract = await myContract.new(null, {
+        data: bytecode,
+        from: web3.eth.accounts[0],
+        gas: 4700000
+    });
+
+    await sleep();
+
+    console.log(`address: ${contract.address}`);
+    console.log(`cnt: ${contract.getCounter.call()}`);
+
+    return contract
+}
+
 class EtherAPI {
-    async constructor() {
+    constructor() {
         const web3 = new Web3();
         web3.setProvider(new web3.providers.HttpProvider("http://localhost:8545"));
 
-        const code = await resolveCompile(SOLPATH);
-        const contractCode = code['contracts'][':SimpleStorage'];
-        const abiDefine = JSON.parse(contractCode['interface']);
-        const myContract = web3.eth.contract(abiDefine);
-        const bytecode = contractCode['bytecode'];
-
-        const contract = await myContract.new(null, {
-            data: bytecode,
-            from: web3.eth.accounts[0],
-            gas: 4700000
+        etherInit(web3).then(contract => {
+            this.contract = contract;
         });
+    }
 
-        const t = await sleep();
-
-        console.log(`address: ${contract.address}`);
-        console.log(`cnt: ${contract.getCounter.call()}`);
+    async getCounter() {
+        return await this.contract.getCounter.call();
     }
 }
+
+module.exports = EtherAPI;
