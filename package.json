@@ -9,6 +9,8 @@
   "author": "",
   "license": "ISC",
   "dependencies": {
+    "express": "^4.16.3",
+    "fs": "0.0.1-security",
     "solc": "^0.4.24",
     "web3": "^0.20.1"
   }
