@@ -24,13 +24,14 @@ contract CC {
     }
     
     // 사용자 금액 확인 
-    function showUserBalance() public view returns (uint256) {
+    function getUserBalance() public view returns (uint256) {
         return balance[msg.sender];
     }
 
     // 토큰 지급
-    function addToken(uint256 money, bytes32 place) public {
-        userlogs[msg.sender].push(TokenData(money, place));
+    function addToken(bytes32 place, uint256 money) public {
+        // userlogs[msg.sender].push(TokenData(money, place));
+        balance[msg.sender] += money;
     }
     
     function getAddress() public view returns (address) {
